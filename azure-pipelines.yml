@@ -7,22 +7,19 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - task: UseFlutterVersion@0
-    inputs:
-      version: 'stable'
-
   - script: |
+      sudo apt-get update -y
+      sudo apt-get install -y curl unzip xz-utils zip
+      curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.22.1-stable.tar.xz
+      tar xf flutter_linux_3.22.1-stable.tar.xz
+      export PATH="$PATH:`pwd`/flutter/bin"
+      flutter doctor
       flutter pub get
       flutter build web --release
-    displayName: 'Build Flutter Web App'
-
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: 'build/web'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    displayName: 'Install Flutter & Build Web App'
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      PathtoPublish: 'build/web'
       ArtifactName: 'webapp'
+      publishLocation: 'Container'
